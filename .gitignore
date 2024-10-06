@@ -1,0 +1,5 @@
+__pycache__/
+.idea/
+logs/
+*.xlsx
+update_titles_of_layers_in_map.py
