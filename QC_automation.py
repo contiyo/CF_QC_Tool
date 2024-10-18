@@ -171,6 +171,16 @@ class LayerProcessor:
     def process_poles(self, poles_features, layer, olt):
         attachment_list = self.attachment_list_downloader(layer)
         for pole in poles_features:
+            if pole.attributes["Editor"] is None:
+                correct_editor = pole.attributes["Editor_1"]
+            else:
+                correct_editor = pole.attributes["Editor"]
+            if pole.attributes["EditDate"] is None:
+                correct_edit_date = pole.attributes["EditDate_1"]
+            else:
+                correct_edit_date = pole.attributes["EditDate"]
+            if correct_editor == "Entegro_Ireland" or correct_editor == "praveenmp":
+                continue
             check_id = (
                 pole.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -178,6 +188,7 @@ class LayerProcessor:
             priority_list = [0]
             error_list = []
             logging.debug(f"Processing pole with {check_id}")
+
             try:
                 if (
                         pole.attributes["status"] == 0
@@ -483,8 +494,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                pole.attributes["Editor"],
-                pole.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -492,6 +503,14 @@ class LayerProcessor:
     def process_power_lines(self, power_lines_features, layer, olt):
         attachment_list = self.attachment_list_downloader(layer)
         for power_line in power_lines_features:
+            if power_line.attributes["Editor"] is None:
+                correct_editor = power_line.attributes["Editor_1"]
+            else:
+                correct_editor = power_line.attributes["Editor"]
+            if power_line.attributes["EditDate"] is None:
+                correct_edit_date = power_line.attributes["EditDate_1"]
+            else:
+                correct_edit_date = power_line.attributes["EditDate"]
             check_id = (
                 power_line.attributes["GlobalID"]
                 .replace("{", "")
@@ -543,14 +562,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                power_line.attributes["Editor"],
-                power_line.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_electrical_crossing(self, electrical_crossing_features, olt):
         for crossing in electrical_crossing_features:
+            if crossing.attributes["Editor"] is None:
+                correct_editor = crossing.attributes["Editor_1"]
+            else:
+                correct_editor = crossing.attributes["Editor"]
+            if crossing.attributes["EditDate"] is None:
+                correct_edit_date = crossing.attributes["EditDate_1"]
+            else:
+                correct_edit_date = crossing.attributes["EditDate"]
             check_id = (
                 crossing.attributes["GlobalID"]
                 .replace("{", "")
@@ -614,8 +641,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                crossing.attributes["Editor"],
-                crossing.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -623,6 +650,14 @@ class LayerProcessor:
     def process_exclusion_zone(self, exclusion_zone_features, layer, olt):
         attachment_list = self.attachment_list_downloader(layer)
         for exclusion in exclusion_zone_features:
+            if exclusion.attributes["Editor"] is None:
+                correct_editor = exclusion.attributes["Editor_1"]
+            else:
+                correct_editor = exclusion.attributes["Editor"]
+            if exclusion.attributes["EditDate"] is None:
+                correct_edit_date = exclusion.attributes["EditDate_1"]
+            else:
+                correct_edit_date = exclusion.attributes["EditDate"]
             check_id = (
                 exclusion.attributes["GlobalID"]
                 .replace("{", "")
@@ -703,14 +738,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                exclusion.attributes["Editor"],
-                exclusion.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_aerial_spans(self, aerial_spans_features, olt):
         for span in aerial_spans_features:
+            if span.attributes["Editor"] is None:
+                correct_editor = span.attributes["Editor_1"]
+            else:
+                correct_editor = span.attributes["Editor"]
+            if span.attributes["EditDate"] is None:
+                correct_edit_date = span.attributes["EditDate_1"]
+            else:
+                correct_edit_date = span.attributes["EditDate"]
             check_id = (
                 span.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -755,14 +798,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                span.attributes["Editor"],
-                span.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_bt_ducts(self, bt_ducts_features, olt):
         for duct in bt_ducts_features:
+            if duct.attributes["Editor"] is None:
+                correct_editor = duct.attributes["Editor_1"]
+            else:
+                correct_editor = duct.attributes["Editor"]
+            if duct.attributes["EditDate"] is None:
+                correct_edit_date = duct.attributes["EditDate_1"]
+            else:
+                correct_edit_date = duct.attributes["EditDate"]
             check_id = (
                 duct.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -805,8 +856,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                duct.attributes["Editor"],
-                duct.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -814,6 +865,14 @@ class LayerProcessor:
     def process_proposed_ug_route(self, proposed_ug_route_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for route in proposed_ug_route_features:
+            if route.attributes["Editor"] is None:
+                correct_editor = route.attributes["Editor_1"]
+            else:
+                correct_editor = route.attributes["Editor"]
+            if route.attributes["EditDate"] is None:
+                correct_edit_date = route.attributes["EditDate_1"]
+            else:
+                correct_edit_date = route.attributes["EditDate"]
             check_id = (
                 route.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -857,8 +916,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                route.attributes["Editor"],
-                route.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -866,6 +925,16 @@ class LayerProcessor:
     def process_chambers(self, chambers_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for chamber in chambers_features:
+            if chamber.attributes["Editor"] is None:
+                correct_editor = chamber.attributes["Editor_1"]
+            else:
+                correct_editor = chamber.attributes["Editor"]
+            if chamber.attributes["EditDate"] is None:
+                correct_edit_date = chamber.attributes["EditDate_1"]
+            else:
+                correct_edit_date = chamber.attributes["EditDate"]
+            if correct_editor == "Entegro_Ireland" or correct_editor == "praveenmp":
+                continue
             check_id = (
                 chamber.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -961,8 +1030,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                chamber.attributes["Editor"],
-                chamber.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -970,6 +1039,14 @@ class LayerProcessor:
     def process_proposed_aerial_spans(self, proposed_aerial_spans_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for span in proposed_aerial_spans_features:
+            if span.attributes["Editor"] is None:
+                correct_editor = span.attributes["Editor_1"]
+            else:
+                correct_editor = span.attributes["Editor"]
+            if span.attributes["EditDate"] is None:
+                correct_edit_date = span.attributes["EditDate_1"]
+            else:
+                correct_edit_date = span.attributes["EditDate"]
             check_id = (
                 span.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1010,8 +1087,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                span.attributes["Editor"],
-                span.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1019,6 +1096,14 @@ class LayerProcessor:
     def process_armoured_cable(self, armoured_cable_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for cable in armoured_cable_features:
+            if cable.attributes["Editor"] is None:
+                correct_editor = cable.attributes["Editor_1"]
+            else:
+                correct_editor = cable.attributes["Editor"]
+            if cable.attributes["EditDate"] is None:
+                correct_edit_date = cable.attributes["EditDate_1"]
+            else:
+                correct_edit_date = cable.attributes["EditDate"]
             check_id = (
                 cable.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1055,14 +1140,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                cable.attributes["Editor"],
-                cable.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_toby(self, toby_type_features, layer, olt):
         for toby in toby_type_features:
+            if toby.attributes["Editor"] is None:
+                correct_editor = toby.attributes["Editor_1"]
+            else:
+                correct_editor = toby.attributes["Editor"]
+            if toby.attributes["EditDate"] is None:
+                correct_edit_date = toby.attributes["EditDate_1"]
+            else:
+                correct_edit_date = toby.attributes["EditDate"]
             check_id = (
                 toby.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1099,8 +1192,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                toby.attributes["Editor"],
-                toby.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1108,6 +1201,14 @@ class LayerProcessor:
     def process_new_demand_points(self, new_demand_points_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for point in new_demand_points_features:
+            if point.attributes["Editor"] is None:
+                correct_editor = point.attributes["Editor_1"]
+            else:
+                correct_editor = point.attributes["Editor"]
+            if point.attributes["EditDate"] is None:
+                correct_edit_date = point.attributes["EditDate_1"]
+            else:
+                correct_edit_date = point.attributes["EditDate"]
             check_id = (
                 point.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1169,8 +1270,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                point.attributes["Editor"],
-                point.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1178,6 +1279,14 @@ class LayerProcessor:
     def process_mdu(self, mdu_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for mdu in mdu_features:
+            if mdu.attributes["Editor"] is None:
+                correct_editor = mdu.attributes["Editor_1"]
+            else:
+                correct_editor = mdu.attributes["Editor"]
+            if mdu.attributes["EditDate"] is None:
+                correct_edit_date = mdu.attributes["EditDate_1"]
+            else:
+                correct_edit_date = mdu.attributes["EditDate"]
             check_id = (
                 mdu.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1224,8 +1333,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                mdu.attributes["Editor"],
-                mdu.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1233,6 +1342,14 @@ class LayerProcessor:
     def process_cabinets(self, cabinets_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for cabinet in cabinets_features:
+            if cabinet.attributes["Editor"] is None:
+                correct_editor = cabinet.attributes["Editor_1"]
+            else:
+                correct_editor = cabinet.attributes["Editor"]
+            if cabinet.attributes["EditDate"] is None:
+                correct_edit_date = cabinet.attributes["EditDate_1"]
+            else:
+                correct_edit_date = cabinet.attributes["EditDate"]
             check_id = (
                 cabinet.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1296,8 +1413,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                cabinet.attributes["Editor"],
-                cabinet.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1305,6 +1422,14 @@ class LayerProcessor:
     def process_new_constructions(self, new_constructions_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for construction in new_constructions_features:
+            if construction.attributes["Editor"] is None:
+                correct_editor = construction.attributes["Editor_1"]
+            else:
+                correct_editor = construction.attributes["Editor"]
+            if construction.attributes["EditDate"] is None:
+                correct_edit_date = construction.attributes["EditDate_1"]
+            else:
+                correct_edit_date = construction.attributes["EditDate"]
             check_id = (
                 construction.attributes["GlobalID"]
                 .replace("{", "")
@@ -1356,14 +1481,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                construction.attributes["Editor"],
-                construction.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_loc(self, loc_features, layer, olt):
         for loc in loc_features:
+            if loc.attributes["Editor"] is None:
+                correct_editor = loc.attributes["Editor_1"]
+            else:
+                correct_editor = loc.attributes["Editor"]
+            if loc.attributes["EditDate"] is None:
+                correct_edit_date = loc.attributes["EditDate_1"]
+            else:
+                correct_edit_date = loc.attributes["EditDate"]
             check_id = (
                 loc.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1405,14 +1538,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                loc.attributes["Editor"],
-                loc.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_planner_awareness(self, planner_awareness_features, layer, olt):
         for planner in planner_awareness_features:
+            if planner.attributes["Editor"] is None:
+                correct_editor = planner.attributes["Editor_1"]
+            else:
+                correct_editor = planner.attributes["Editor"]
+            if planner.attributes["EditDate"] is None:
+                correct_edit_date = planner.attributes["EditDate_1"]
+            else:
+                correct_edit_date = planner.attributes["EditDate"]
             check_id = (
                 planner.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1455,14 +1596,22 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                planner.attributes["Editor"],
-                planner.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_design_risk(self, design_risk_features, layer, olt):
         for risk in design_risk_features:
+            if risk.attributes["Editor"] is None:
+                correct_editor = risk.attributes["Editor_1"]
+            else:
+                correct_editor = risk.attributes["Editor"]
+            if risk.attributes["EditDate"] is None:
+                correct_edit_date = risk.attributes["EditDate_1"]
+            else:
+                correct_edit_date = risk.attributes["EditDate"]
             check_id = (
                 risk.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1504,18 +1653,27 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                risk.attributes["Editor"],
-                risk.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
 
     def process_sed(self, sed_features, layer, olt):
-        # TODO - Add logic to process SED layer once the data is available
         pass
 
     def process_planned_route(self, planner_route_feature, layer, olt):
         for route in planner_route_feature:
+            if route.attributes["Editor"] is None:
+                correct_editor = route.attributes["Editor_1"]
+            else:
+                correct_editor = route.attributes["Editor"]
+            if route.attributes["EditDate"] is None:
+                correct_edit_date = route.attributes["EditDate_1"]
+            else:
+                correct_edit_date = route.attributes["EditDate"]
+            if correct_editor == "Entegro_Ireland" or correct_editor == "praveenmp":
+                continue
             check_id = (
                 route.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1555,8 +1713,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                route.attributes["Editor"],
-                route.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
@@ -1564,6 +1722,14 @@ class LayerProcessor:
     def process_proposed_alternative_ug_route(self, proposed_alternative_ug_route_features, layer, olt):
         attachments = self.attachment_list_downloader(layer)
         for route in proposed_alternative_ug_route_features:
+            if route.attributes["Editor"] is None:
+                correct_editor = route.attributes["Editor_1"]
+            else:
+                correct_editor = route.attributes["Editor"]
+            if route.attributes["EditDate"] is None:
+                correct_edit_date = route.attributes["EditDate_1"]
+            else:
+                correct_edit_date = route.attributes["EditDate"]
             check_id = (
                 route.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
             )
@@ -1608,8 +1774,8 @@ class LayerProcessor:
                 geom,
                 error_list,
                 max_priority,
-                route.attributes["Editor"],
-                route.attributes["EditDate"],
+                correct_editor,
+                correct_edit_date,
                 self.qc_layer_json,
                 self.qc_layer_layer,
             )
