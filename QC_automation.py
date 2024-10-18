@@ -10,7 +10,7 @@ import arcgis
 import psycopg2
 from arcgis.gis import GIS
 from arcgis.mapping import WebMap
-from utils import get_wkid, write_lists_to_excel, send_email2, delete_file
+from utils import get_wkid, write_lists_to_excel, send_email2, delete_file, write_list_to_excel_new
 
 
 # Setup logging
@@ -22,7 +22,7 @@ def setup_logging():
         filename=f"{log_dir}/the.log",
         filemode="a",
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.DEBUG,
+        level=logging.INFO,
         datefmt="%d-%b-%y %H:%M:%S",
     )
 
@@ -102,7 +102,7 @@ def get_feature_geometry_line(layer_type, feature):
         rounded_y = round(feature.geometry["y"], 6)
         return (rounded_x, rounded_y)
     elif layer_type == "polygon":
-        rings = feature["rings"][0]  # Access the first ring of the polygon
+        rings = feature.geometry["rings"][0]  # Access the first ring of the polygon
         num_points = len(rings)
         # Summing up all x and y coordinates
         sum_x = sum(point[0] for point in rings)
@@ -176,40 +176,40 @@ class LayerProcessor:
             logging.debug(f"Processing pole with {check_id}")
             try:
                 if (
-                    pole.attributes["status"] == 0
-                    and pole.attributes["road_edge"] is None
+                        pole.attributes["status"] == 0
+                        and pole.attributes["road_edge"] is None
                 ):
                     error_list.append(
                         "1 - If 'Status' is 'Planned' (0) then '1m from edge of road to front of pole achieved' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] == 0
-                    and pole.attributes["surface"] is None
+                        pole.attributes["status"] == 0
+                        and pole.attributes["surface"] is None
                 ):
                     error_list.append(
                         "2 - If 'Status' is 'Planned' (0) then 'Surface' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] == 0
-                    and pole.attributes["private_land"] is None
+                        pole.attributes["status"] == 0
+                        and pole.attributes["private_land"] is None
                 ):
                     error_list.append(
                         "3 - If 'Status' is 'Planned' (0) then 'Private Land' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] == 0
-                    and pole.attributes["np_7m_from_lv"] is None
+                        pole.attributes["status"] == 0
+                        and pole.attributes["np_7m_from_lv"] is None
                 ):
                     error_list.append(
                         "4 - If 'Status' is 'Planned' (0) then 'New proposed pole 7m away from LV electric pole/wire' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] == 0
-                    and pole.attributes["np_7m_from_hv"] is None
+                        pole.attributes["status"] == 0
+                        and pole.attributes["np_7m_from_hv"] is None
                 ):
                     error_list.append(
                         "5 - If 'Status' is 'Planned' (0) then 'New proposed pole 7m away from HV electric pole/wire' can not be blank"
@@ -221,153 +221,153 @@ class LayerProcessor:
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["plant_item"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["plant_item"] is None
                 ):
                     error_list.append(
                         "7 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Plant Item' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["owner"] == 0
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["owner"] == 0
                 ):
                     error_list.append(
                         "8 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Owner' can not be 'CityFibre'"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["pole_age"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["pole_age"] is None
                 ):
                     error_list.append(
                         "9 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Pole Age' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["test_date"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["test_date"] is None
                 ):
                     error_list.append(
                         "10 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Test Date' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["bt_id"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["bt_id"] is None
                 ):
                     error_list.append(
                         "11 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'BT ID' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["pole_a1024"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["pole_a1024"] is None
                 ):
                     error_list.append(
                         "12 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Pole A1024' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["hazards"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["hazards"] is None
                 ):
                     error_list.append(
                         "13 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Hazards' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["capping"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["capping"] is None
                 ):
                     error_list.append(
                         "14 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Capping' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["exist_wire"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["exist_wire"] is None
                 ):
                     error_list.append(
                         "15 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Existing Wire count' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["ring_head"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["ring_head"] is None
                 ):
                     error_list.append(
                         "16 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Ring head present' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["wires_ringhead"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["wires_ringhead"] is None
                 ):
                     error_list.append(
                         "17 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Wires hosted on ringhead' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["radial"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["radial"] is None
                 ):
                     error_list.append(
                         "18 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Radial distribution' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["free_space"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["free_space"] is None
                 ):
                     error_list.append(
                         "19 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Space to host an ASN' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["free_space_dist"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["free_space_dist"] is None
                 ):
                     error_list.append(
                         "20 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Space to host a distribution joint at lower envelope' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["p2p_spans"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["p2p_spans"] is None
                 ):
                     error_list.append(
                         "21 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Existing span count' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["los"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["los"] is None
                 ):
                     error_list.append(
                         "22 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'LOS' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["existing_lowdrop_wires"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["existing_lowdrop_wires"] is None
                 ):
                     error_list.append(
                         "23 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Existing low drop wires' can not be blank"
@@ -377,98 +377,98 @@ class LayerProcessor:
                     error_list.append("25 - 'Comments' can not be blank")
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["road_edge"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["road_edge"] is None
                 ):
                     error_list.append(
                         "26 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then '1m from edge of road to front of pole achieved' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["mewp_access"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["mewp_access"] is None
                 ):
                     error_list.append(
                         "27 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'MEWP access' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["pole_stay"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["pole_stay"] is None
                 ):
                     error_list.append(
                         "28 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Pole stay' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["surface"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["surface"] is None
                 ):
                     error_list.append(
                         "29 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Surface' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["private_land"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["private_land"] is None
                 ):
                     error_list.append(
                         "30 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Private Land' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["access_issue"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["access_issue"] is None
                 ):
                     error_list.append(
                         "31 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Accessibility issue?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["foliage"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["foliage"] is None
                 ):
                     error_list.append(
                         "32 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Foliage on pole?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["topstep_tb"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["topstep_tb"] is None
                 ):
                     error_list.append(
                         "33 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Top step TB removed?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["pole_breakout"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["pole_breakout"] is None
                 ):
                     error_list.append(
                         "34 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Breakout at base of pole required?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["status"] != 0
-                    and pole.attributes["surveyed"] == 1
-                    and pole.attributes["space_unb_joint"] is None
+                        pole.attributes["status"] != 0
+                        and pole.attributes["surveyed"] == 1
+                        and pole.attributes["space_unb_joint"] is None
                 ):
                     error_list.append(
                         "35 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Space for unbundling Joint?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    pole.attributes["surveyed"] is None
-                    or pole.attributes["surveyed"] != 1
+                        pole.attributes["surveyed"] is None
+                        or pole.attributes["surveyed"] != 1
                 ):
                     error_list.append("36 - 'Surveyed' must be 'Yes'")
                     priority_list.append(5)
@@ -498,6 +498,7 @@ class LayerProcessor:
                 }
                 self.poles_list_mail.append(poles_dict)
             max_priority = max(priority_list)
+
             self.process_feature_on_qc_layer(
                 check_id,
                 "poles",
@@ -525,8 +526,8 @@ class LayerProcessor:
             logging.debug(f"Processing power line with {check_id}")
             try:
                 if (
-                    power_line.attributes["voltage"] is None
-                    and power_line.attributes["comments"] is None
+                        power_line.attributes["voltage"] is None
+                        and power_line.attributes["comments"] is None
                 ):
                     error_list.append(
                         "1 - If 'Voltage' is blank then 'Comments' can not be blank"
@@ -590,24 +591,24 @@ class LayerProcessor:
                     error_list.append("2 - 'Voltage' can not be blank")
                     priority_list.append(5)
                 if (
-                    crossing.attributes["status"] == 2
-                    and crossing.attributes["clearance"] is None
+                        crossing.attributes["status"] == 2
+                        and crossing.attributes["clearance"] is None
                 ):
                     error_list.append(
                         "3 - If 'Status' is 'Measured by Survey' then 'Clearance' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    crossing.attributes["sur_status"] == "Unable to measure"
-                    and crossing.attributes["comments"] is None
+                        crossing.attributes["sur_status"] == "Unable to measure"
+                        and crossing.attributes["comments"] is None
                 ):
                     error_list.append(
                         "4 - If 'Survey Status' is 'Unable to measure' then 'Comments' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    crossing.attributes["redesign_req"] is None
-                    and crossing.attributes["status"] == 2
+                        crossing.attributes["redesign_req"] is None
+                        and crossing.attributes["status"] == 2
                 ):
                     error_list.append(
                         "5 - If 'Status' is 'Measured by Survey' then 'Redesign Required' can not be blank"
@@ -662,8 +663,8 @@ class LayerProcessor:
                     error_list.append("2 - 'Exclusion Zone' can not be blank")
                     priority_list.append(5)
                 if (
-                    exclusion.attributes["excl_zone"] == "Unknown"
-                    and exclusion.attributes["comments"] is None
+                        exclusion.attributes["excl_zone"] == "Unknown"
+                        and exclusion.attributes["comments"] is None
                 ):
                     error_list.append(
                         "3 - If 'Exclusion Zone' is 'Unknown' then 'Comments' can not be blank"
@@ -673,8 +674,8 @@ class LayerProcessor:
                     error_list.append("6 - 'Planned Infrastructure' can not be blank")
                     priority_list.append(5)
                 if (
-                    exclusion.attributes["excl_zone"] == "BT Pole <11KV-33KV-3m"
-                    and exclusion.attributes["ladder_mewp_360"] is None
+                        exclusion.attributes["excl_zone"] == "BT Pole <11KV-33KV-3m"
+                        and exclusion.attributes["ladder_mewp_360"] is None
                 ):
                     error_list.append(
                         "7 - If 'Exclusion Zone' is 'BT Pole <11KV-33KV-3m' then 'Ladder/MEWP 360' can not be blank"
@@ -684,8 +685,8 @@ class LayerProcessor:
                     error_list.append("8 - 'Survey Status' can not be blank")
                     priority_list.append(5)
                 if (
-                    exclusion.attributes["status"] == "Measured  by Survey"
-                    and exclusion.attributes["rede_req"] is None
+                        exclusion.attributes["status"] == "Measured  by Survey"
+                        and exclusion.attributes["rede_req"] is None
                 ):
                     error_list.append(
                         "9 - If 'Status' is 'Measured by Survey' then 'Redesign Required' can not be blank"
@@ -899,8 +900,8 @@ class LayerProcessor:
                     error_list.append("1 - 'Surveyed' can not be blank")
                     priority_list.append(5)
                 if (
-                    chamber.attributes["surveyed"] == 1
-                    and chamber.attributes["chamber_loc"] is None
+                        chamber.attributes["surveyed"] == 1
+                        and chamber.attributes["chamber_loc"] is None
                 ):
                     error_list.append(
                         "2 - If 'Surveyed' is 'Yes' then 'Chamber Location' can not be blank"
@@ -913,32 +914,32 @@ class LayerProcessor:
                     error_list.append("4 - 'Owner' can not be blank")
                     priority_list.append(3)
                 if (
-                    chamber.attributes["surveyed"] == 1
-                    and chamber.attributes["space_cf"] is None
+                        chamber.attributes["surveyed"] == 1
+                        and chamber.attributes["space_cf"] is None
                 ):
                     error_list.append(
                         "5 - If 'Surveyed' is 'Yes' then 'Space to host CF joint' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    chamber.attributes["surveyed"] == 1
-                    and chamber.attributes["hole_type"] is None
+                        chamber.attributes["surveyed"] == 1
+                        and chamber.attributes["hole_type"] is None
                 ):
                     error_list.append(
                         "6 - If 'Surveyed' is 'Yes' then 'Chamber Type' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    chamber.attributes["surveyed"] == 1
-                    and chamber.attributes["mobra_fit"] is None
+                        chamber.attributes["surveyed"] == 1
+                        and chamber.attributes["mobra_fit"] is None
                 ):
                     error_list.append(
                         "7 - If 'Surveyed' is 'Yes' then 'MOBRA fitted' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    chamber.attributes["surveyed"] == 1
-                    and chamber.attributes["surface"] is None
+                        chamber.attributes["surveyed"] == 1
+                        and chamber.attributes["surface"] is None
                 ):
                     error_list.append(
                         "8 - If 'Surveyed' is 'Yes' then 'Surface' can not be blank"
@@ -1140,24 +1141,24 @@ class LayerProcessor:
             logging.debug(f"Processing new demand point with {check_id}")
             try:
                 if (
-                    point.attributes["home_count"] is None
-                    and point.attributes["comments"] is None
+                        point.attributes["home_count"] is None
+                        and point.attributes["comments"] is None
                 ):
                     error_list.append(
                         "1 - If 'Home Count' is blank then 'Comments' can not be blank"
                     )
                     priority_list.append(4)
                 if (
-                    point.attributes["property_type"] is None
-                    and point.attributes["comments"] is None
+                        point.attributes["property_type"] is None
+                        and point.attributes["comments"] is None
                 ):
                     error_list.append(
                         "2 - If 'Property Type' is blank then 'Comments' can not be blank"
                     )
                     priority_list.append(4)
                 if (
-                    point.attributes["street_name"] is None
-                    and point.attributes["comments"] is None
+                        point.attributes["street_name"] is None
+                        and point.attributes["comments"] is None
                 ):
                     error_list.append(
                         "3 - If 'Street Name' is blank then 'Comments' can not be blank"
@@ -1274,23 +1275,23 @@ class LayerProcessor:
                     error_list.append("2 - 'Surface' can not be blank")
                     priority_list.append(5)
                 if (
-                    cabinet.attributes["surface"] == "Footway"
-                    and cabinet.attributes["footway_width"] is None
+                        cabinet.attributes["surface"] == "Footway"
+                        and cabinet.attributes["footway_width"] is None
                 ):
                     error_list.append(
                         "3 - If 'Surface' is 'Footway' then 'Footway Width' can not be blank"
                     )
                     priority_list.append(5)
                 if (
-                    cabinet.attributes["surface"] == "Grass verge"
-                    and cabinet.attributes["grassverge_width"] is None
+                        cabinet.attributes["surface"] == "Grass verge"
+                        and cabinet.attributes["grassverge_width"] is None
                 ):
                     error_list.append(
                         "4 - If 'Surface' is 'Grass verge' then 'Grass verge Width' can not be blank"
                     )
                     priority_list.append(5)
                 if cabinet.attributes["comments"] is None:
-                    error_list.append("5 - 'Comments' can not be blank")
+                    error_list.append("17 - 'Comments' can not be blank")
                     priority_list.append(3)
 
                 attach_exists = next(
@@ -1298,7 +1299,7 @@ class LayerProcessor:
                     None,
                 )
                 if not attach_exists:
-                    error_list.append("6 - Attachments missing")
+                    error_list.append("16 - Attachments missing")
                     priority_list.append(5)
 
             except Exception as e:
@@ -1402,8 +1403,8 @@ class LayerProcessor:
                     error_list.append("1 - 'LOC Reason' can not be blank")
                     priority_list.append(5)
                 if (
-                    loc.attributes["loc_reason"] == "Other"
-                    and loc.attributes["comments"] is None
+                        loc.attributes["loc_reason"] == "Other"
+                        and loc.attributes["comments"] is None
                 ):
                     error_list.append(
                         "2 - If 'LOC Reason' is 'Other' then 'Comments' can not be blank"
@@ -1452,48 +1453,48 @@ class LayerProcessor:
                     priority_list.append(4)
                 else:
                     if (
-                        planner.attributes["aware_type"] == "01 - TM Required"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "01 - TM Required"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "1 - If 'Awareness Type' is 'TM Required' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
                     if (
-                        planner.attributes["aware_type"] == "02 - Chamber not found"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "02 - Chamber not found"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "2 - If 'Awareness Type' is 'Chamber not found' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
                     if (
-                        planner.attributes["aware_type"] == "03 - Unable to open Lid"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "03 - Unable to open Lid"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "3 - If 'Awareness Type' is 'Unable to open Lid' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
                     if (
-                        planner.attributes["aware_type"] == "04 - Unable to find feed"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "04 - Unable to find feed"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "4 - If 'Awareness Type' is 'Unable to find feed' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
                     if (
-                        planner.attributes["aware_type"] == "05 - Other (Comments)"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "05 - Other (Comments)"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "5 - If 'Awareness Type' is 'Other (Comments)' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
                     if (
-                        planner.attributes["aware_type"] == "06 - TRR Required"
-                        and planner.attributes["comments"] is None
+                            planner.attributes["aware_type"] == "06 - TRR Required"
+                            and planner.attributes["comments"] is None
                     ):
                         error_list.append(
                             "6 - If 'Awareness Type' is 'TRR Required' then 'Comments' can not be blank"
@@ -1504,8 +1505,8 @@ class LayerProcessor:
                         priority_list.append(3)
                     else:
                         if (
-                            planner.attributes["notes"] == "Other Notes"
-                            and planner.attributes["comments"] is None
+                                planner.attributes["notes"] == "Other Notes"
+                                and planner.attributes["comments"] is None
                         ):
                             error_list.append(
                                 "9 - If 'Notes' is 'Other Notes' then 'Comments' can not be blank"
@@ -1556,8 +1557,8 @@ class LayerProcessor:
                     error_list.append("2 - 'Comments' can not be blank")
                     priority_list.append(3)
                 if (
-                    risk.attributes["hazard_type"] == "Other"
-                    and risk.attributes["comments"] is None
+                        risk.attributes["hazard_type"] == "Other"
+                        and risk.attributes["comments"] is None
                 ):
                     error_list.append(
                         "3 - If 'Hazard type' is 'Other' then 'Comments' can not be blank"
@@ -1596,16 +1597,16 @@ class LayerProcessor:
         pass
 
     def process_feature_on_qc_layer(
-        self,
-        global_id,
-        layer,
-        geometry,
-        errors,
-        priority,
-        last_editor,
-        last_edit_date,
-        qc_layer_json,
-        qc_layer_layer,
+            self,
+            global_id,
+            layer,
+            geometry,
+            errors,
+            priority,
+            last_editor,
+            last_edit_date,
+            qc_layer_json,
+            qc_layer_layer,
     ):
         if global_id not in qc_layer_json.keys():
             logging.debug(f"Error not found for {global_id} on {layer} layer")
@@ -1673,8 +1674,8 @@ class LayerProcessor:
                 )
 
                 if (
-                    qc_layer_json[global_id]["error_type"] == str(get_error_type(layer))
-                    and qc_layer_json[global_id]["QC_User"] == "CF QC Automation"
+                        qc_layer_json[global_id]["error_type"] == str(get_error_type(layer))
+                        and qc_layer_json[global_id]["QC_User"] == "CF QC Automation"
                 ):
                     logging.debug(
                         f"Error already exists for {global_id} on {layer} layer"
@@ -1713,8 +1714,8 @@ class LayerProcessor:
                     f"No errors found for {global_id} on {layer} layer - Resolving the error"
                 )
                 if (
-                    qc_layer_json[global_id]["error_type"] == str(get_error_type(layer))
-                    and qc_layer_json[global_id]["QC_Status"] != 3
+                        qc_layer_json[global_id]["error_type"] == str(get_error_type(layer))
+                        and qc_layer_json[global_id]["QC_Status"] != 3
                 ):
                     new_line = {
                         "attributes": {
@@ -1753,72 +1754,103 @@ class LayerProcessor:
 
 # Main processing function
 def main():
-    logger = setup_logging()
-    gis = setup_connections()
+    try:
+        logger = setup_logging()
+        gis = setup_connections()
+        mailing_list_errors = []
 
-    # TODO - Add logic to fetch correct maps, for now using the test webmap
-    webmap_list = ["3e4c917c03dc4b8f967cfc3b05799c77"]
-    for webmap in webmap_list:
-        item_to_check = gis.content.get(webmap)
-        olt = item_to_check.title.split("_")[-1]
-        layers = fetch_webmap_layers(gis, webmap)
-        layers_dict = extract_correct_layers_with_id(layers)
-        qc_layer = gis.content.get(layers_dict["City Fibre QC Point"]).layers[0]
-        qc_layer_json = get_qc_layer_as_custom_json(
-            gis, layers_dict["City Fibre QC Point"]
-        )
-        qc_check = LayerProcessor(qc_layer_json, qc_layer)
-        for layer in layers_dict:
-            if layers_dict[layer] is not None:
-                sublayer = gis.content.get(layers_dict[layer]).layers[0]
-                fset = sublayer.query()
-                if fset:
-                    if layer == "Poles":
-                        qc_check.process_poles(fset, sublayer, olt)
-                    elif layer == "Exclusion Zone":
-                        qc_check.process_exclusion_zone(fset, sublayer, olt)
-                    elif layer == "Power Lines":
-                        qc_check.process_power_lines(fset, sublayer, olt)
-                    elif layer == "Electrical Crossing":
-                        qc_check.process_electrical_crossing(fset, olt)
-                    elif layer == "Existing Aerial Span":
-                        qc_check.process_aerial_spans(fset, olt)
-                    elif layer == "Existing BT Ducts":
-                        qc_check.process_bt_ducts(fset, olt)
-                    elif layer == "Proposed UG Route":
-                        qc_check.process_proposed_ug_route(fset, sublayer, olt)
-                    elif layer == "Chambers":
-                        qc_check.process_chambers(fset, sublayer, olt)
-                    elif layer == "Proposed Aerial Span":
-                        qc_check.process_proposed_aerial_spans(fset, sublayer, olt)
-                    elif layer == "Armoured Cables Fed":
-                        qc_check.process_armoured_cable(fset, sublayer, olt)
-                    elif layer == "Toby Locations":
-                        qc_check.process_toby(fset, sublayer, olt)
-                    elif layer == "New Demand Points":
-                        qc_check.process_new_demand_points(fset, sublayer, olt)
-                    elif layer == "MDU":
-                        qc_check.process_mdu(fset, sublayer, olt)
-                    elif layer == "Cabinets":
-                        qc_check.process_cabinets(fset, sublayer, olt)
-                    elif layer == "New Constructions":
-                        qc_check.process_new_constructions(fset, sublayer, olt)
-                    elif layer == "LOC":
-                        qc_check.process_loc(fset, sublayer, olt)
-                    elif layer == "Planner Awareness Data":
-                        qc_check.process_planner_awareness(fset, sublayer, olt)
-                    elif layer == "Design Risk":
-                        qc_check.process_design_risk(fset, sublayer, olt)
-                    elif layer == "SED":
-                        qc_check.process_sed(fset, sublayer, olt)
+        # TODO - Add logic to fetch correct maps, for now using the test webmap
+        webmap_list = ["3e4c917c03dc4b8f967cfc3b05799c77"]
+        for webmap in webmap_list:
+            item_to_check = gis.content.get(webmap)
+            olt = item_to_check.title.split("_")[-1]
+            layers = fetch_webmap_layers(gis, webmap)
+            layers_dict = extract_correct_layers_with_id(layers)
+            qc_layer = gis.content.get(layers_dict["City Fibre QC Point"]).layers[0]
+            qc_layer_json = get_qc_layer_as_custom_json(
+                gis, layers_dict["City Fibre QC Point"]
+            )
+            qc_check = LayerProcessor(qc_layer_json, qc_layer)
+            for layer in layers_dict:
+                if layers_dict[layer] is not None:
+                    sublayer = gis.content.get(layers_dict[layer]).layers[0]
+                    fset = sublayer.query()
+                    if fset:
+                        if layer == "Poles":
+                            qc_check.process_poles(fset, sublayer, olt)
+                        elif layer == "Exclusion Zone":
+                            qc_check.process_exclusion_zone(fset, sublayer, olt)
+                        elif layer == "Power Lines":
+                            qc_check.process_power_lines(fset, sublayer, olt)
+                        elif layer == "Electrical Crossing":
+                            qc_check.process_electrical_crossing(fset, olt)
+                        elif layer == "Existing Aerial Span":
+                            qc_check.process_aerial_spans(fset, olt)
+                        elif layer == "Existing BT Ducts":
+                            qc_check.process_bt_ducts(fset, olt)
+                        elif layer == "Proposed UG Route":
+                            qc_check.process_proposed_ug_route(fset, sublayer, olt)
+                        elif layer == "Chambers":
+                            qc_check.process_chambers(fset, sublayer, olt)
+                        elif layer == "Proposed Aerial Span":
+                            qc_check.process_proposed_aerial_spans(fset, sublayer, olt)
+                        elif layer == "Armoured Cables Fed":
+                            qc_check.process_armoured_cable(fset, sublayer, olt)
+                        elif layer == "Toby Locations":
+                            qc_check.process_toby(fset, sublayer, olt)
+                        elif layer == "New Demand Points":
+                            qc_check.process_new_demand_points(fset, sublayer, olt)
+                        elif layer == "MDU":
+                            qc_check.process_mdu(fset, sublayer, olt)
+                        elif layer == "Cabinets":
+                            qc_check.process_cabinets(fset, sublayer, olt)
+                        elif layer == "New Constructions":
+                            qc_check.process_new_constructions(fset, sublayer, olt)
+                        elif layer == "LOC":
+                            qc_check.process_loc(fset, sublayer, olt)
+                        elif layer == "Planner Awareness Data":
+                            qc_check.process_planner_awareness(fset, sublayer, olt)
+                        elif layer == "Design Risk":
+                            qc_check.process_design_risk(fset, sublayer, olt)
+                        elif layer == "SED":
+                            qc_check.process_sed(fset, sublayer, olt)
+                        else:
+                            logging.error(f"Layer {layer} not found in the processing list")
                     else:
-                        logging.error(f"Layer {layer} not found in the processing list")
+                        logging.debug(f"No features found in {layer} layer")
                 else:
-                    logging.debug(f"No features found in {layer} layer")
-            else:
-                logging.error(f"Layer {layer} not found in the webmap")
+                    logging.error(f"Layer {layer} not found in the webmap")
+            if qc_check.poles_list_mail:
+                mailing_list_errors.extend(qc_check.poles_list_mail)
 
-    # TODO - Implement logic to send email with the errors found
+        logger.info("Processing completed")
+
+        mailing_list_errors.append({"DA": "Test", "Layer": "Test", "OBJECTID": "Test", "Error Crashing the Algorithms": "Test"})
+
+        if mailing_list_errors:
+            today = datetime.now().strftime("%d %m %Y")
+            today_for_file = datetime.now().strftime("%d_%m_%Y")
+            my_excel_path = write_list_to_excel_new(mailing_list_errors,
+                                                    f"CF_QC_Automation_Errors_{today_for_file}.xlsx")
+            email_recipients = [
+                "kpikos@entegro.ie",
+            ]
+            email_subject = f"City Fibre QC Automation Errors Report {today}"
+            email_body = (f"Please find attached the QC Automation Errors Report for {today}. Please review and take "
+                          f"necessary actions. \n\n Regards, \n Entegro Automation Team")
+            send_email2(email_recipients, email_subject, email_body, my_excel_path)
+
+            time.sleep(10)
+            delete_file(my_excel_path)
+
+
+
+
+
+
+    except Exception as e:
+        logging.error("Error in main function")
+        logging.error(e, exc_info=True)
 
 
 if __name__ == "__main__":

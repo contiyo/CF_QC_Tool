@@ -10,13 +10,13 @@ from email.message import EmailMessage
 from email.contentmanager import ContentManager
 import os
 
-
 # ACCESSING AGOL AND GENERATING TOKEN
 username = 'praveenmp'
 password = 'raph1aP4'
 gis = GIS("https://www.arcgis.com", username, password)
 
 logger = logging.getLogger('__main__.' + __name__)
+
 
 def new_fields(layerid):
     item = gis.content.get(layerid)
@@ -233,6 +233,59 @@ def send_email(to_addr, subject, body):
     server.quit()
 
 
+def create_json_for_excel(data):
+    my_dict = {}
+    for x in data:
+        da = x["DA"]
+        # Ensure 'DA' exists as a key in the dictionary
+        if da not in my_dict:
+            my_dict[da] = []
+
+        # Append the dictionary entry for each "DA"
+        my_dict[da].append({
+            "Layer": x["Layer"],
+            "OBJECTID": x["OBJECTID"],
+            "Error Crashing the Algorithms": x["Error Crashing the Algorithms"],
+        })
+
+    return my_dict
+
+
+
+
+def write_list_to_excel_new(my_list, filename):
+    filename = filename + '.xlsx'
+    # create a new workbook
+    workbook = openpyxl.Workbook()
+
+    my_json = create_json_for_excel(my_list)
+
+    for i in my_json:
+        sheet_name = i
+        worksheet = workbook.create_sheet(title=sheet_name)
+
+        # define the headers for the worksheet
+        headers = list(my_json[i][0].keys())
+
+        # write the headers to the first row of the worksheet
+        for col_num, header in enumerate(headers, 1):
+            cell = worksheet.cell(row=1, column=col_num)
+            cell.value = header
+
+        # write the data to the worksheet
+        for row_num, row_data in enumerate(my_json[i], 2):
+            for col_num, cell_value in enumerate(row_data, 1):
+                cell = worksheet.cell(row=row_num, column=col_num)
+                cell.value = row_data[cell_value]
+
+    # delete the default 'Sheet' sheet
+    default_sheet = workbook['Sheet']
+    workbook.remove(default_sheet)
+
+    # save the workbook
+    workbook.save(filename)
+
+    return filename
 
 
 def write_lists_to_excel(lists, sheet_names, excel_name):
@@ -268,6 +321,7 @@ def write_lists_to_excel(lists, sheet_names, excel_name):
     # save the workbook
     workbook.save(excel_name)
 
+
 def send_email2(to_addr, subject, body, file_path):
     from_addr = 'automation.account@entegro.ie'
     app_password = '@Automation12345'
@@ -298,6 +352,7 @@ def send_email2(to_addr, subject, body, file_path):
 
     # Close the SMTP connection
     server.quit()
+
 
 def delete_file(file_path):
     """Delete the file at the given path if it exists."""
