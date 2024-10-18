@@ -78,6 +78,8 @@ def extract_correct_layers_with_id(layers):
         "Planner Awareness Data": None,
         "Design Risk": None,
         "SED": None,
+        "Planner Route": None,
+        "Proposed Alternative UG Route": None,
         "City Fibre QC Point": None,
     }
     for layer in layers:
@@ -134,6 +136,8 @@ def get_error_type(layer):
         "planner_awareness": 17,
         "design_risk": 18,
         "sed": 19,
+        "planned_route": 20,
+        "proposed_alternative_ug_route": 21,
     }
     return error_type_domain[layer]
 
@@ -175,14 +179,6 @@ class LayerProcessor:
             error_list = []
             logging.debug(f"Processing pole with {check_id}")
             try:
-                if (
-                        pole.attributes["status"] == 0
-                        and pole.attributes["road_edge"] is None
-                ):
-                    error_list.append(
-                        "1 - If 'Status' is 'Planned' (0) then '1m from edge of road to front of pole achieved' can not be blank"
-                    )
-                    priority_list.append(5)
                 if (
                         pole.attributes["status"] == 0
                         and pole.attributes["surface"] is None
@@ -437,24 +433,6 @@ class LayerProcessor:
                 ):
                     error_list.append(
                         "32 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Foliage on pole?' can not be blank"
-                    )
-                    priority_list.append(5)
-                if (
-                        pole.attributes["status"] != 0
-                        and pole.attributes["surveyed"] == 1
-                        and pole.attributes["topstep_tb"] is None
-                ):
-                    error_list.append(
-                        "33 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Top step TB removed?' can not be blank"
-                    )
-                    priority_list.append(5)
-                if (
-                        pole.attributes["status"] != 0
-                        and pole.attributes["surveyed"] == 1
-                        and pole.attributes["pole_breakout"] is None
-                ):
-                    error_list.append(
-                        "34 - If 'Status' is not 'Planned' and 'Surveyed' is 'Yes' then 'Breakout at base of pole required?' can not be blank"
                     )
                     priority_list.append(5)
                 if (
@@ -945,6 +923,14 @@ class LayerProcessor:
                         "8 - If 'Surveyed' is 'Yes' then 'Surface' can not be blank"
                     )
                     priority_list.append(5)
+                if (
+                        chamber.attributes["data_collection"] is None
+                        and chamber.attributes["comments"] is None
+                ):
+                    error_list.append(
+                        "9 - If 'Data Collection' is blank then 'Comments' can not be blank"
+                    )
+                    priority_list.append(5)
 
                 attach_exists = next(
                     (x for x in attachments if x == chamber.attributes["GlobalID"]),
@@ -992,9 +978,6 @@ class LayerProcessor:
             error_list = []
             logging.debug(f"Processing proposed aerial span with {check_id}")
             try:
-                if span.attributes["comments"] is None:
-                    error_list.append("1 - 'Comments' can not be blank")
-                    priority_list.append(2)
                 if span.attributes["tree_len"] is None:
                     error_list.append("2 - 'Tree Length' can not be blank")
                     priority_list.append(5)
@@ -1044,10 +1027,6 @@ class LayerProcessor:
             error_list = []
             logging.debug(f"Processing armoured cable with {check_id}")
             try:
-                if cable.attributes["comments"] is None:
-                    error_list.append("1 - 'Comments' can not be blank")
-                    priority_list.append(4)
-
                 attach_exists = next(
                     (x for x in attachments if x == cable.attributes["GlobalID"]), None
                 )
@@ -1097,9 +1076,6 @@ class LayerProcessor:
                     priority_list.append(5)
                 if toby.attributes["status"] is None:
                     error_list.append("2 - 'Status' can not be blank")
-                    priority_list.append(5)
-                if toby.attributes["comments"] is None:
-                    error_list.append("3 - 'Comments' can not be blank")
                     priority_list.append(5)
 
             except Exception as e:
@@ -1219,9 +1195,6 @@ class LayerProcessor:
                 if mdu.attributes["unit_count"] is None:
                     error_list.append("3 - 'Unit Count' can not be blank")
                     priority_list.append(5)
-                if mdu.attributes["comments"] is None:
-                    error_list.append("4 - 'Comments' can not be blank")
-                    priority_list.append(2)
 
                 attach_exists = next(
                     (x for x in attachments if x == mdu.attributes["GlobalID"]), None
@@ -1448,70 +1421,18 @@ class LayerProcessor:
             error_list = []
             logging.debug(f"Processing planner awareness with {check_id}")
             try:
-                if planner.attributes["aware_type"] is None:
-                    error_list.append("7 - 'Awareness Type' can not be blank")
-                    priority_list.append(4)
+                if planner.attributes["notes"] is None:
+                    error_list.append("8 - 'Notes' can not be blank")
+                    priority_list.append(3)
                 else:
                     if (
-                            planner.attributes["aware_type"] == "01 - TM Required"
+                            planner.attributes["notes"] == "Other Notes"
                             and planner.attributes["comments"] is None
                     ):
                         error_list.append(
-                            "1 - If 'Awareness Type' is 'TM Required' then 'Comments' can not be blank"
+                            "9 - If 'Notes' is 'Other Notes' then 'Comments' can not be blank"
                         )
                         priority_list.append(5)
-                    if (
-                            planner.attributes["aware_type"] == "02 - Chamber not found"
-                            and planner.attributes["comments"] is None
-                    ):
-                        error_list.append(
-                            "2 - If 'Awareness Type' is 'Chamber not found' then 'Comments' can not be blank"
-                        )
-                        priority_list.append(5)
-                    if (
-                            planner.attributes["aware_type"] == "03 - Unable to open Lid"
-                            and planner.attributes["comments"] is None
-                    ):
-                        error_list.append(
-                            "3 - If 'Awareness Type' is 'Unable to open Lid' then 'Comments' can not be blank"
-                        )
-                        priority_list.append(5)
-                    if (
-                            planner.attributes["aware_type"] == "04 - Unable to find feed"
-                            and planner.attributes["comments"] is None
-                    ):
-                        error_list.append(
-                            "4 - If 'Awareness Type' is 'Unable to find feed' then 'Comments' can not be blank"
-                        )
-                        priority_list.append(5)
-                    if (
-                            planner.attributes["aware_type"] == "05 - Other (Comments)"
-                            and planner.attributes["comments"] is None
-                    ):
-                        error_list.append(
-                            "5 - If 'Awareness Type' is 'Other (Comments)' then 'Comments' can not be blank"
-                        )
-                        priority_list.append(5)
-                    if (
-                            planner.attributes["aware_type"] == "06 - TRR Required"
-                            and planner.attributes["comments"] is None
-                    ):
-                        error_list.append(
-                            "6 - If 'Awareness Type' is 'TRR Required' then 'Comments' can not be blank"
-                        )
-                        priority_list.append(5)
-                    if planner.attributes["notes"] is None:
-                        error_list.append("8 - 'Notes' can not be blank")
-                        priority_list.append(3)
-                    else:
-                        if (
-                                planner.attributes["notes"] == "Other Notes"
-                                and planner.attributes["comments"] is None
-                        ):
-                            error_list.append(
-                                "9 - If 'Notes' is 'Other Notes' then 'Comments' can not be blank"
-                            )
-                            priority_list.append(5)
 
             except Exception as e:
                 logging.error(f"Error processing planner awareness {check_id}")
@@ -1553,10 +1474,7 @@ class LayerProcessor:
                 if risk.attributes["hazard_type"] is None:
                     error_list.append("1 - 'Hazard type' can not be blank")
                     priority_list.append(5)
-                if risk.attributes["comments"] is None:
-                    error_list.append("2 - 'Comments' can not be blank")
-                    priority_list.append(3)
-                if (
+                elif (
                         risk.attributes["hazard_type"] == "Other"
                         and risk.attributes["comments"] is None
                 ):
@@ -1595,6 +1513,108 @@ class LayerProcessor:
     def process_sed(self, sed_features, layer, olt):
         # TODO - Add logic to process SED layer once the data is available
         pass
+
+    def process_planned_route(self, planner_route_feature, layer, olt):
+        for route in planner_route_feature:
+            check_id = (
+                route.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
+            )
+            geom = get_feature_geometry_line("line", route)
+            priority_list = [0]
+            error_list = []
+            logging.debug(f"Processing planned route with {check_id}")
+            try:
+                if route.attributes['enough_cap'] is None and route.attributes['owner'] == 10:
+                    error_list.append("1 - 'Enough Capacity' can not be blank if Owner is 'BT Openreach'")
+                    priority_list.append(5)
+                if route.attributes['num_ways'] is None and route.attributes['owner'] == 10:
+                    error_list.append("2 - 'Number of Ways' can not be blank if Owner is 'BT Openreach'")
+                    priority_list.append(5)
+                if route.attributes['rem_space'] is None and route.attributes['owner'] == 10:
+                    error_list.append("3 - 'Remaining space in BT duct' can not be blank if Owner is 'BT Openreach'")
+                    priority_list.append(5)
+
+            except Exception as e:
+                logging.error(f"Error processing planned route {check_id}")
+                logging.error(e, exc_info=True)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback_info = "".join(traceback.format_tb(exc_traceback))
+                output = traceback_info.split("<module>")[-1]
+                route_dict = {
+                    "DA": olt,
+                    "Layer": "Planned Route",
+                    "OBJECTID": route.attributes["OBJECTID"],
+                    "Error Crashing the Algorithms": output,
+                }
+                self.poles_list_mail.append(route_dict)
+
+            max_priority = max(priority_list)
+            self.process_feature_on_qc_layer(
+                check_id,
+                "planned_route",
+                geom,
+                error_list,
+                max_priority,
+                route.attributes["Editor"],
+                route.attributes["EditDate"],
+                self.qc_layer_json,
+                self.qc_layer_layer,
+            )
+
+    def process_proposed_alternative_ug_route(self, proposed_alternative_ug_route_features, layer, olt):
+        attachments = self.attachment_list_downloader(layer)
+        for route in proposed_alternative_ug_route_features:
+            check_id = (
+                route.attributes["GlobalID"].replace("{", "").replace("}", "").lower()
+            )
+            geom = get_feature_geometry_line("line", route)
+            priority_list = [0]
+            error_list = []
+            logging.debug(f"Processing proposed alternative ug route with {check_id}")
+            try:
+                #TODO - Re-work logic with Chikku
+                if route.attributes["comments"] is None:
+                    error_list.append("1 - 'Comments' can not be blank")
+                    priority_list.append(2)
+                if route.attributes["surface_type"] is None:
+                    error_list.append("2 - 'Surface Type' can not be blank")
+                    priority_list.append(5)
+
+                attach_exists = next(
+                    (x for x in attachments if x == route.attributes["GlobalID"]), None
+                )
+                if not attach_exists:
+                    error_list.append("3 - Attachments missing")
+                    priority_list.append(5)
+
+            except Exception as e:
+                logging.error(f"Error processing proposed alternative ug route {check_id}")
+                logging.error(e, exc_info=True)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback_info = "".join(traceback.format_tb(exc_traceback))
+                output = traceback_info.split("<module>")[-1]
+                route_dict = {
+                    "DA": olt,
+                    "Layer": "Proposed Alternative UG Route",
+                    "OBJECTID": route.attributes["OBJECTID"],
+                    "Error Crashing the Algorithms": output,
+                }
+                self.poles_list_mail.append(route_dict)
+
+            max_priority = max(priority_list)
+            self.process_feature_on_qc_layer(
+                check_id,
+                "proposed_alternative_ug_route",
+                geom,
+                error_list,
+                max_priority,
+                route.attributes["Editor"],
+                route.attributes["EditDate"],
+                self.qc_layer_json,
+                self.qc_layer_layer,
+            )
+
+
 
     def process_feature_on_qc_layer(
             self,
@@ -1804,8 +1824,9 @@ def main():
                             qc_check.process_mdu(fset, sublayer, olt)
                         elif layer == "Cabinets":
                             qc_check.process_cabinets(fset, sublayer, olt)
-                        elif layer == "New Constructions":
-                            qc_check.process_new_constructions(fset, sublayer, olt)
+                        # TODO - Pending template modification as per Chikku. Putting on hold
+                        # elif layer == "New Constructions":
+                        #     qc_check.process_new_constructions(fset, sublayer, olt)
                         elif layer == "LOC":
                             qc_check.process_loc(fset, sublayer, olt)
                         elif layer == "Planner Awareness Data":
@@ -1814,6 +1835,10 @@ def main():
                             qc_check.process_design_risk(fset, sublayer, olt)
                         elif layer == "SED":
                             qc_check.process_sed(fset, sublayer, olt)
+                        elif layer == "Planned Route":
+                            qc_check.process_planned_route(fset, sublayer, olt)
+                        elif layer == "Proposed Alternative UG Route":
+                            qc_check.process_proposed_alternative_ug_route(fset, sublayer, olt)
                         else:
                             logging.error(f"Layer {layer} not found in the processing list")
                     else:
@@ -1825,7 +1850,8 @@ def main():
 
         logger.info("Processing completed")
 
-        mailing_list_errors.append({"DA": "Test", "Layer": "Test", "OBJECTID": "Test", "Error Crashing the Algorithms": "Test"})
+        mailing_list_errors.append(
+            {"DA": "Test", "Layer": "Test", "OBJECTID": "Test", "Error Crashing the Algorithms": "Test"})
 
         if mailing_list_errors:
             today = datetime.now().strftime("%d %m %Y")
